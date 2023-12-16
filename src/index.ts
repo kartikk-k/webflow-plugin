@@ -1,23 +1,29 @@
 const getStyleIndex = () => {
-  // return 'custom-style-01'
+  // return 'custom-style-02'
   return Math.floor(Math.random() * 1000000)
 }
 
+
 // handle the click event on the apply button
 document.getElementById('apply-btn').onclick = async (event) => {
+
   event.preventDefault()
-  processController()
+  await processController()
+
 }
 
-const ALLOWED_ELEMENTS = ['Container', 'Section']
+document.getElementById('class-clear').onclick = async (event) => {
+  event.preventDefault()
+  const classInput = document.getElementById('class-input') as HTMLInputElement
+  classInput.value = ''
+}
 
 // controls the process for each element
 const processController = async () => {
   const selectedElement = await webflow.getSelectedElement()
-  const typeOfSelectedElement = selectedElement.type
+  // const typeOfSelectedElement = selectedElement.type
 
   if (!selectedElement) return statusController('ERROR', 'No element selected')
-  else if (typeOfSelectedElement !== 'Section' && typeOfSelectedElement !== 'Container') return statusController('ERROR', 'Element not supported')
 
   // if selected continue
   statusController('LOADING', 'Processing styles...')
@@ -29,13 +35,15 @@ const processController = async () => {
 
   statusController('LOADING', 'Applying styles...')
 
-  selectedElement.setStyles([webflowStyleClass])
-  await selectedElement.save()
+  if (selectedElement.styles) {
+    selectedElement.setStyles([webflowStyleClass])
+    await selectedElement.save()
+  }
+
+  webflowStyleClass.destroy()
 
   statusController('SUCCESS', 'Styles applied successfully')
-  // enable apply button
   buttonContoller.enable()
-
 }
 
 // main function
@@ -43,15 +51,28 @@ const stylesConverter = async () => {
   const inputStyles = document.getElementById('textarea') as HTMLTextAreaElement
 
   const styles = inputStyles.value
-  const processedData = dataProcessor(styles)
+  const styleObject2: Style = webflow.createStyle(`random-${getStyleIndex()}`)
+  await dataProcessor(styles, styleObject2)
 
-  return await applyStyles(processedData)
+  return styleObject2
 }
 
 // sub functions - (data)
-const dataProcessor = (data: string) => {
+const dataProcessor = async (data: string, styleClass: Style) => {
   const lines = data.split(';');
   const styleObject: webflowStyleProperty[] = [];
+
+
+  let heightAllowed: boolean;
+  let widthAllowed: boolean;
+
+  //  get settings from local storage
+  const localHeightValue = await getDataFromLocalStorage_I('height');
+  if (typeof (localHeightValue) === "boolean") heightAllowed = localHeightValue;
+
+  const localWidthValue = await getDataFromLocalStorage_I('width');
+  if (typeof (localWidthValue) === "boolean") widthAllowed = localWidthValue;
+
 
   // Process each line
   lines.forEach(line => {
@@ -60,28 +81,21 @@ const dataProcessor = (data: string) => {
 
     // Check if both property and value are present
     if (property && valueParts.length > 0) {
-      // Join the value parts to handle values with colons
-      const value = valueParts.join(':').trim();
 
-      try {
-        // Add the property-value pair to the styleObject
-        // @ts-ignore
-        styleObject.push({ property, value });
-      } catch {
-        // console.log('error')
-      }
+      styleClass.setProperty(property as StyleProperty, valueParts.join(':'), { breakpoint: 'main', pseudo: 'noPseudo' })
+
     }
+
   });
 
-  return styleObject
-  // insert result in p tag with id result
-  const result = document.getElementById('result')
-  result.innerHTML = JSON.stringify(styleObject)
 }
 
 const applyStyles = async (data: webflowStyleProperty[]) => {
 
-  const webflowStyleClass = webflow.createStyle(`random-${getStyleIndex()}`);
+  const inputClass = document.getElementById('class-input') as HTMLInputElement
+  const newClassName = inputClass.value.trim() || `random-${getStyleIndex()}`
+
+  const webflowStyleClass = webflow.createStyle(newClassName);
 
   data.forEach(async (style) => {
     webflowStyleClass.setProperty(style.property, style.value, { breakpoint: 'main', pseudo: 'noPseudo' })
@@ -195,80 +209,56 @@ const getIcon = (status: 'ERROR' | 'SUCCESS' | 'LOADING' | 'NO_SELECT') => {
 
 }
 
-// document.getElementsByTagName('button')[0].onclick = async (event) => {
-//   event.preventDefault()
 
-//   const input = document.getElementsByTagName('input')[0]
-//   const value = input.value
+async function getDataFromLocalStorage_I(key: string) {
+  let data = localStorage.getItem(key);
 
-
-
-//   const selectedElement = await webflow.getSelectedElement()
-//   if (selectedElement && selectedElement.textContent) {
-//     let myStyle = webflow.createStyle(`myStyle${getStyleIndex()}`);
-
-//     const lines = value.split(';');
-//     const styleObject = Object.create(null);
+  if (data) return await JSON.parse(data);
+  else return null;
+}
 
 
-//     // Process each line
-//     lines.forEach(line => {
-//       // Split each line into property and value
-//       const [property, ...valueParts] = line.split(':').map(part => part.trim());
-
-//       // Check if both property and value are present
-//       if (property && valueParts.length > 0) {
-//         // Join the value parts to handle values with colons
-//         const value = valueParts.join(':').trim();
-
-//         // Add the property-value pair to the styleObject
-//         styleObject[`${property}`] = value.split(';')[0];
-//       }
-//     });
-
-//     // insert result in p tag with id result
-//     const result = document.getElementById('result')
-//     result.innerHTML = JSON.stringify(styleObject)
-
-//     myStyle.setProperties(styleObject, { breakpoint: 'main', pseudo: 'noPseudo' })
-//     await myStyle.save()
 
 
-//     selectedElement.setStyles([myStyle])
-//     // selectedElement.setTextContent(value)
-//     await selectedElement.save()
-
-//   }
-
-// }
 
 
-// color: #7C8994; font-size: 14px;
 
-// ------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------------------------------
+function timeout<T>(milliseconds: number, promise: Promise<T>): Promise<T> {
+  const controller = new AbortController();
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      reject(new Error('Timeout'));
+    }, milliseconds);
+  });
 
+  return Promise.race([promise, timeoutPromise]);
+}
 
-// document.getElementsByTagName('a')[0].onclick = async (event) => {
-//   event.preventDefault()
+// Example usage:
+const exampleFunction = async (signal: AbortSignal) => {
+  // Simulate a long-running task
+  await new Promise((resolve, reject) => {
+    // Check if aborted before resolving
+    if (signal.aborted) {
+      reject(new Error('Aborted'));
+      return;
+    }
 
-//   const input = document.getElementsByTagName('input')[0]
-//   const value = input.value
+    // Simulate a long-running task
+    const timeoutId = setTimeout(() => {
+      clearTimeout(timeoutId);
+      resolve('Task completed!');
+    }, 2500);
+  });
+};
 
-//   const selectedElement = await webflow.getSelectedElement()
-//   if (selectedElement && selectedElement.textContent) {
-//     let myStyle7 = webflow.createStyle(`myStyle${styleIndex++}1`);
-//     myStyle7.setProperties({ "font-size": '88px', 'color': 'red' }, { breakpoint: 'main', pseudo: 'noPseudo' })
-//     // myStyle7.setProperty('font-size', '76px', { breakpoint: 'main', pseudo: 'noPseudo' })
-//     await myStyle7.save()
-//     selectedElement.setStyles([myStyle7])
-//     selectedElement.setTextContent(value)
-//     await selectedElement.save()
-//     // myStyle7.destroy()
-//   }
+const timeoutMilliseconds = 100; // 100ms 0.1s
 
-// }
+const controller = new AbortController();
+const signal = controller.signal;
 
+// timeout(timeoutMilliseconds, exampleFunction(signal))
+//   .then((result) => console.log('Function completed within the timeout:', result))
+//   .catch((error) => console.log('Function timed out or aborted:', error.message));
 

@@ -3,6 +3,8 @@
 		"outDir": "public",
 		"target": "es6",
 		"lib": ["es6", "dom"],
-		"typeRoots": ["./node_modules/@types", "./node_modules/@webflow"]
+		"typeRoots": ["./node_modules/@types", "./node_modules/@webflow"],
+		"moduleResolution": "node",
+		"module": "commonjs"
 	}
 }

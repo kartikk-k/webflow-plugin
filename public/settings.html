@@ -1,0 +1,49 @@
+<!-- syntax highlighting -->
+<!-- <link rel="stylesheet" href="prism.css"> -->
+<!-- tailwind css script -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- NOTE: local css styles overwrites tailwindcss -->
+<link href="styles.css" rel="stylesheet" />
+
+<!-- start of DOM -->
+<div class="text-[12px] p-0 bg-[#1e1e1e] text-[#BDBDBD] h-screen flex flex-col w-full">
+
+    <!-- header -->
+    <a href="index.html" class="p-2 flex items-center gap-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M6.70707 8.00004L9.35352 5.35359L8.64641 4.64648L5.29286 8.00004L8.64641 11.3536L9.35352 10.6465L6.70707 8.00004Z" fill="#8AC2FF"/>
+            </svg>
+        <span style="color: #8AC2FF; font-size: 11.50px; font-family: Inter; font-weight: 400; line-height: 16px; word-wrap: break-word">Back</span>
+    </a>
+
+    <!-- setting options -->
+    <div class="p-2 flex flex-col gap-4">
+        <p class="text-white text-[12.5px]">Settings</p>
+
+        <!-- custom height -->
+        <div class="flex items-center gap-1">
+            <div class="scale-75">
+                <input type="checkbox" id="height-option" />
+                <label for="height-option" id="height-switch">Height</label>
+            </div>
+            <p>Allow custom height</p>
+        </div>
+
+        <!-- custom width -->
+        <div class="flex items-center gap-1">
+            <div class="scale-75">
+                <input type="checkbox" id="width-option" />
+                <label for="width-option" id="width-switch">Width</label>
+            </div>
+            <p>Allow custom width</p>
+        </div>
+
+    </div>
+
+</div>
+<!-- end of DOM -->
+
+<script src="settings.js"></script>
+<script>
+    // localStorage.setItem('title', JSON.stringify('data'))
+</script>

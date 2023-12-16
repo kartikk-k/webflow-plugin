@@ -8,8 +8,44 @@
 <!-- start of DOM -->
 <div class="text-[12px] p-0 bg-[#1e1e1e] text-[#BDBDBD] h-screen flex flex-col w-full">
 
+    <!-- content area -->
+    <div class="flex flex-col gap-2 p-2">
+        <div class="flex items-center justify-between">
+            <p>Class name</p>
+        </div>
+
+        <div class="flex items-center gap-2 h-[24px]">
+            <input id="class-input" placeholder="(Leave empty for auto-generated classes)" class="font-mono w-full h-full rounded-md outline-none bg-transparent p-2 resize-none" />
+            <button id="class-clear" class="flex items-center justify-center h-[24px] w-[24px] shrink-0 rounded-md" style="width: 24px; height: 24px; padding: 4px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.10) 100%); box-shadow: 0px 0.5px 0.5px rgba(255, 255, 255, 0.12) inset;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.70714 8.00001L12.3536 4.35356L11.6465 3.64645L8.00004 7.2929L4.35359 3.64645L3.64648 4.35356L7.29293 8.00001L3.64648 11.6465L4.35359 12.3536L8.00004 8.70711L11.6465 12.3536L12.3536 11.6465L8.70714 8.00001Z" fill="white"/>
+                  </svg>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- content area -->
+    <div class="flex flex-col gap-2 p-2 h-full">
+        <p>Figma styles</p>
+        <textarea id="textarea" placeholder="Paste your styles here..." class="font-mono h-full rounded-md outline-none p-2 resize-none"></textarea>
+    </div>
+
+    <!-- button group -->
+    <div class="w-full p-2 flex gap-2">
+        <!-- apply button -->
+        <button id="apply-btn" class="w-full h-[24px] p-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Apply styles</button>
+        <!-- settings button -->
+        <a href="settings.html" id="" class="flex items-center justify-center h-[24px] w-[24px] shrink-0 rounded-md" style="background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.10) 100%); box-shadow: 0px 0.5px 0.5px rgba(255, 255, 255, 0.12) inset;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M3.3037 4.13401L5.95003 4.44964L6.99989 2H8.99986L10.0497 4.44964L12.696 4.13404L13.696 5.86607L12.0995 8.00003L13.696 10.134L12.696 11.866L10.0497 11.5504L8.9999 14H6.9999L5.95007 11.5504L3.30373 11.8661L2.30373 10.134L3.9002 8.00004L2.30371 5.86604L3.3037 4.13401ZM6.86917 4.84356L7.65928 3H8.34047L9.13056 4.84356C9.30529 5.25125 9.72769 5.49513 10.1681 5.4426L12.1597 5.20509L12.5003 5.79501L11.2988 7.40098C11.0331 7.75615 11.0331 8.24391 11.2988 8.59907L12.5003 10.205L12.1597 10.795L10.1681 10.5575C9.72766 10.5049 9.30526 10.7488 9.13054 11.1565L8.3405 13H7.65928L6.86921 11.1565C6.69448 10.7488 6.27207 10.505 5.83163 10.5575L3.84005 10.795L3.49945 10.2051L4.70093 8.59907C4.96663 8.24391 4.96663 7.75616 4.70092 7.401L3.49943 5.79499L3.84002 5.20507L5.8316 5.4426C6.27203 5.49513 6.69444 5.25125 6.86917 4.84356ZM7.99979 9C8.55207 9 8.99979 8.55228 8.99979 8C8.99979 7.44772 8.55207 7 7.99979 7C7.4475 7 6.99979 7.44772 6.99979 8C6.99979 8.55228 7.4475 9 7.99979 9Z" fill="#F5F5F5"/>
+              </svg>
+        </a>
+    </div>
+
+
     <!-- status header -->
-    <div class="flex items-center w-full gap-2 p-2 border-b border-white border-opacity-[13%]">
+    <div class="flex items-center w-full gap-2 p-2 py-1 border-t border-white border-opacity-[13%]">
         <p class="text-white">Status:</p>
         <div class="w-full flex items-center justify-between text-gray-400">
             <p id="status-text">--</p>
@@ -17,22 +53,6 @@
                 <!-- <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> -->
             </div>
         </div>
-    </div>
-
-    <!-- content area -->
-    <div class="flex flex-col gap-2 p-2 h-full">
-        <div class="flex items-center justify-between">
-            <p>Figma styles</p>
-            <button id="clear-btn" class="px-1 py-0.5">Clear textbox</button>
-        </div>
-
-        <textarea id="textarea" placeholder="Paste your styles here..." class="font-mono h-full rounded-md outline-none p-2 resize-none"></textarea>
-
-    </div>
-
-    <!-- apply style button -->
-    <div class="w-full p-2">
-        <button id="apply-btn" class="w-full p-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Apply styles</button>
     </div>
 
 </div>

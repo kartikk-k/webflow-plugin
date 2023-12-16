@@ -8,8 +8,12 @@
     "dev": "npm install && concurrently -r \"webflow extension serve\" \"tsc -p tsconfig.json --watch --preserveWatchOutput\""
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.42",
     "@webflow/designer-extension-typings": "^0.1.11",
     "concurrently": "*",
     "typescript": "*"
+  },
+  "dependencies": {
+    "bluebird": "^3.7.2"
   }
 }
