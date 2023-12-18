@@ -28,7 +28,18 @@
     <!-- content area -->
     <div class="flex flex-col gap-2 p-2 h-full">
         <p>Figma styles</p>
-        <textarea id="textarea" placeholder="Paste your styles here..." class="font-mono h-full rounded-md outline-none p-2 resize-none"></textarea>
+        <p id="debug"></p>
+        <div class="h-full relative">
+            <textarea id="textarea" placeholder="Paste your styles here..." class="font-mono w-full h-full rounded-md outline-none p-2 resize-none"></textarea>
+
+            <button id="textarea-clear" class="absolute top-2 right-2 z-10 flex items-center justify-center h-[24px] w-[24px] shrink-0 rounded-md bg-neutral-700" style="width: 24px; height: 24px; padding: 4px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M4.08328 12.25L1.57495 9.74167C0.991618 9.15833 0.991618 8.28333 1.57495 7.75833L7.17495 2.15833C7.75829 1.575 8.63329 1.575 9.15829 2.15833L12.425 5.425C13.0083 6.00833 13.0083 6.88333 12.425 7.40833L7.58329 12.25" stroke="#A6A6A6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12.8334 12.25H4.08337" stroke="#A6A6A6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.91663 6.41666L8.16663 11.6667" stroke="#A6A6A6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+            </button>
+        </div>
     </div>
 
     <!-- button group -->
@@ -59,4 +70,4 @@
 <!-- end of DOM -->
 
 <script src="index.js"></script>
-<script src="prism.js"></script>
+<!-- <script src="prism.js"></script> -->

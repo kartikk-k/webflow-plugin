@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const ALLOWED_PROPERTIES = ['accent-color', 'align-content', 'align-items', 'align-self', 'animation-delay', 'animation-direction', 'animation-duration', 'animation-fill-mode', 'animation-iteration-count', 'animation-name', 'animation-play-state', 'animation-timing-function', 'appearance', 'backdrop-filter', 'backface-visibility', 'background-attachment', 'background-blend-mode', 'background-clip', 'background-color', 'background-image', 'background-origin', 'background-position', 'background-position-x', 'background-position-y', 'background-repeat', 'background-size', 'block-size', 'border-block-end-color', 'border-block-end-style', 'border-block-end-width', 'border-block-start-color', 'border-block-start-style', 'border-block-start-width', 'border-bottom-color', 'border-bottom-left-radius', 'border-bottom-right-radius', 'border-bottom-style', 'border-bottom-width', 'border-collapse', 'border-end-end-radius', 'border-end-start-radius', 'border-image-outset', 'border-image-repeat', 'border-image-slice', 'border-image-source', 'border-image-width', 'border-inline-end-color', 'border-inline-end-style', 'border-inline-end-width', 'border-inline-start-color', 'border-inline-start-style', 'border-inline-start-width', 'border-left-color', 'border-left-style', 'border-left-width', 'border-right-color', 'border-right-style', 'border-right-width', 'border-start-end-radius', 'border-start-start-radius', 'border-top-color', 'border-top-left-radius', 'border-top-right-radius', 'border-top-style', 'border-top-width', 'bottom', 'box-shadow', 'box-sizing', 'break-after', 'break-before', 'break-inside', 'caption-side', 'caret-color', 'clear', 'clip', 'clip-path', 'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'column-count', 'column-gap', 'column-rule-color', 'column-rule-style', 'column-rule-width', 'column-span', 'column-width', 'content', 'cursor', 'cx', 'cy', 'direction', 'display', 'dominant-baseline', 'empty-cells', 'fill', 'fill-opacity', 'fill-rule', 'filter', 'flex-basis', 'flex-direction', 'flex-grow', 'flex-shrink', 'flex-wrap', 'float', 'flood-color', 'flood-opacity', 'font-family', 'font-kerning', 'font-optical-sizing', 'font-size', 'font-stretch', 'font-style', 'font-variant-alternates', 'font-variant-caps', 'font-variant-east-asian', 'font-variant-ligatures', 'font-variant-numeric', 'font-weight', 'grid-auto-columns', 'grid-auto-flow', 'grid-auto-rows', 'grid-column-end', 'grid-column-gap', 'grid-column-start', 'grid-row-end', 'grid-row-gap', 'grid-row-start', 'grid-template-areas', 'grid-template-columns', 'grid-template-rows', 'height', 'image-orientation', 'image-rendering', 'inline-size', 'inset-block-end', 'inset-block-start', 'inset-inline-end', 'inset-inline-start', 'isolation', 'justify-content', 'justify-items', 'justify-self', 'left', 'letter-spacing', 'lighting-color', 'line-break', 'line-height', 'list-style-image', 'list-style-position', 'list-style-type', 'margin-block-end', 'margin-block-start', 'margin-bottom', 'margin-inline-end', 'margin-inline-start', 'margin-left', 'margin-right', 'margin-top', 'marker-end', 'marker-mid', 'marker-start', 'mask-type', 'max-block-size', 'max-height', 'max-inline-size', 'max-width', 'min-block-size', 'min-height', 'min-inline-size', 'min-width', 'mix-blend-mode', 'object-fit', 'object-position', 'offset-anchor', 'offset-distance', 'offset-path', 'offset-rotate', 'opacity', 'order', 'outline-color', 'outline-offset', 'outline-style', 'outline-width', 'overflow-wrap', 'overflow-x', 'overflow-y', 'overscroll-behavior-block', 'overscroll-behavior-inline', 'padding-block-end', 'padding-block-start', 'padding-bottom', 'padding-inline-end', 'padding-inline-start', 'padding-left', 'padding-right', 'padding-top', 'paint-order', 'perspective', 'perspective-origin', 'pointer-events', 'position', 'r', 'resize', 'right', 'rotate', 'row-gap', 'rx', 'ry', 'scale', 'scroll-behavior', 'scroll-margin-block-end', 'scroll-margin-block-start', 'scroll-margin-inline-end', 'scroll-margin-inline-start', 'scroll-padding-block-end', 'scroll-padding-block-start', 'scroll-padding-inline-end', 'scroll-padding-inline-start', 'shape-image-threshold', 'shape-margin', 'shape-outside', 'shape-rendering', 'stop-color', 'stop-opacity', 'stroke', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'tab-size', 'table-layout', 'text-align', 'text-align-last', 'text-anchor', 'text-decoration', 'text-decoration-color', 'text-decoration-line', 'text-decoration-skip-ink', 'text-decoration-style', 'text-emphasis-color', 'text-emphasis-position', 'text-emphasis-style', 'text-indent', 'text-overflow', 'text-rendering', 'text-shadow', 'text-transform', 'text-underline-position', 'top', 'touch-action', 'transform', 'transform-origin', 'transform-style', 'transition-delay', 'transition-duration', 'transition-property', 'transition-timing-function', 'translate', 'unicode-bidi', 'vector-effect', 'vertical-align', 'visibility', 'white-space', 'width', 'will-change', 'word-break', 'word-spacing', 'writing-mode', 'x', 'y', 'z-index', '-webkit-line-clamp', '-webkit-text-fill-color', '-webkit-text-stroke-color', '-webkit-text-stroke-width'];
-const ADVANCED_PROPERTIES = ['height', 'width'];
+const ADVANCED_PROPERTIES = ['height', 'width', 'opacity', 'border-radius', 'padding'];
 const getStyleIndex = () => {
     // return 'custom-style-02'
     return Math.floor(Math.random() * 1000000);
@@ -23,10 +23,14 @@ document.getElementById('class-clear').onclick = (event) => __awaiter(this, void
     const classInput = document.getElementById('class-input');
     classInput.value = '';
 });
+document.getElementById('textarea-clear').onclick = (event) => __awaiter(this, void 0, void 0, function* () {
+    event.preventDefault();
+    const classInput = document.getElementById('textarea');
+    classInput.value = '';
+});
 // controls the process for each element
 const processController = () => __awaiter(this, void 0, void 0, function* () {
     const selectedElement = yield webflow.getSelectedElement();
-    // const typeOfSelectedElement = selectedElement.type
     if (!selectedElement)
         return statusController('ERROR', 'No element selected');
     // if selected continue
@@ -34,6 +38,8 @@ const processController = () => __awaiter(this, void 0, void 0, function* () {
     // disable apply button
     buttonContoller.disable();
     const webflowStyleClass = yield stylesConverter();
+    if (!webflowStyleClass)
+        return buttonContoller.enable();
     statusController('LOADING', 'Applying stylesssas...');
     if (selectedElement.styles) {
         selectedElement.setStyles([webflowStyleClass]);
@@ -47,21 +53,19 @@ const processController = () => __awaiter(this, void 0, void 0, function* () {
 const stylesConverter = () => __awaiter(this, void 0, void 0, function* () {
     const inputStyles = document.getElementById('textarea');
     const styles = inputStyles.value;
-    const styleObject2 = webflow.createStyle(`random-${getStyleIndex()}`);
-    yield dataProcessor(styles, styleObject2);
-    return styleObject2;
+    if (!styles.trim()) {
+        statusController('NO_SELECT', 'Please add css properties');
+        return null;
+    }
+    // get style name from input
+    const inputClass = document.getElementById('class-input');
+    const styleObject = webflow.createStyle(inputClass.value.trim() || `random-${getStyleIndex()}`);
+    yield dataProcessor(styles, styleObject);
+    return styleObject;
 });
 // sub functions - (data)
 const dataProcessor = (data, styleClass) => __awaiter(this, void 0, void 0, function* () {
     const lines = data.split(';');
-    const styleObject = [];
-    // let heightAllowed: boolean;
-    // let widthAllowed: boolean;
-    // //  get settings from local storage
-    // const localHeightValue = await getDataFromLocalStorage_I('height');
-    // if (typeof (localHeightValue) === "boolean") heightAllowed = localHeightValue;
-    // const localWidthValue = await getDataFromLocalStorage_I('width');
-    // if (typeof (localWidthValue) === "boolean") widthAllowed = localWidthValue;
     // Process each line
     lines.forEach((line) => __awaiter(this, void 0, void 0, function* () {
         // Split each line into property and value
@@ -69,31 +73,37 @@ const dataProcessor = (data, styleClass) => __awaiter(this, void 0, void 0, func
         // Check if both property and value are present
         if (property && valueParts.length > 0) {
             if (isValidProperty(property)) {
-                // Set the property using styleClass.setProperty
-                styleClass.setProperty(property, valueParts.join(':'), { breakpoint: 'main', pseudo: 'noPseudo' });
+                const isAdvancedProperty = ADVANCED_PROPERTIES.find(item => item === property);
+                if (isAdvancedProperty) {
+                    advancedDataProcessor(styleClass, property, valueParts.join(':'));
+                }
+                else {
+                    styleClass.setProperty(property, valueParts.join(':'), { breakpoint: 'main', pseudo: 'noPseudo' });
+                }
             }
         }
     }));
     function isValidProperty(property) {
-        const item = ALLOWED_PROPERTIES.find(item => item === property);
+        const valid_properties = ADVANCED_PROPERTIES.concat(ALLOWED_PROPERTIES);
+        const item = valid_properties.find(item => item === property);
         if (item)
             return true;
         else
             return false;
     }
 });
-const applyStyles = (data) => __awaiter(this, void 0, void 0, function* () {
-    const inputClass = document.getElementById('class-input');
-    const newClassName = inputClass.value.trim() || `random-${getStyleIndex()}`;
-    const webflowStyleClass = webflow.createStyle(newClassName);
-    data.forEach((style) => __awaiter(this, void 0, void 0, function* () {
-        webflowStyleClass.setProperty(style.property, style.value, { breakpoint: 'main', pseudo: 'noPseudo' });
-    }));
-    // creating class in webflow
-    yield webflowStyleClass.save();
-    // returning class
-    return webflowStyleClass;
-});
+// const applyStyles = async (data: webflowStyleProperty[]) => {
+//   const inputClass = document.getElementById('class-input') as HTMLInputElement
+//   const newClassName = inputClass.value.trim() || `random-${getStyleIndex()}`
+//   const webflowStyleClass = webflow.createStyle(newClassName);
+//   data.forEach(async (style) => {
+//     webflowStyleClass.setProperty(style.property, style.value, { breakpoint: 'main', pseudo: 'noPseudo' })
+//   })
+//   // creating class in webflow
+//   await webflowStyleClass.save()
+//   // returning class
+//   return webflowStyleClass
+// }
 // sub functions - (visual)
 const statusController = (status, text) => {
     const statusElement = document.getElementById('status-text');
@@ -195,3 +205,66 @@ function getDataFromLocalStorage_I(key) {
     });
 }
 // advanced data processor
+function advancedDataProcessor(styleClass, property, value) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // height and width advanced settings
+        if (property === 'height' || property === 'width') {
+            /* -- for height -- */
+            if (property === 'height') {
+                let heightAllowed;
+                const localHeightValue = yield getDataFromLocalStorage_I('height');
+                if (typeof (localHeightValue) === "boolean")
+                    heightAllowed = localHeightValue;
+                if (heightAllowed)
+                    styleClass.setProperty(property, value);
+            }
+            /* -- for width -- */
+            else {
+                let widthAllowed;
+                const localWidthValue = yield getDataFromLocalStorage_I('width');
+                if (typeof (localWidthValue) === "boolean")
+                    widthAllowed = localWidthValue;
+                if (widthAllowed)
+                    styleClass.setProperty(property, value);
+            }
+        }
+        /* -- for opacity -- */
+        else if (property === 'opacity') {
+            if (value !== 'var(--line, 1)') {
+                styleClass.setProperty(property, value);
+            }
+        }
+        /* -- for border --*/
+        else if (property === 'border-radius') {
+            const webflowBorderRadiusProperties = [
+                'border-start-end-radius',
+                'border-start-start-radius',
+                'border-top-left-radius',
+                'border-top-right-radius',
+                'border-bottom-left-radius',
+                'border-bottom-right-radius',
+                'border-end-end-radius',
+                'border-end-start-radius'
+            ];
+            webflowBorderRadiusProperties.map(item => {
+                styleClass.setProperty(item, value);
+            });
+        }
+        /* -- for padding -- */
+        else if (property === 'padding') {
+            const webflowPaddingProperties = [
+                'padding-block-end',
+                'padding-block-start',
+                'padding-bottom',
+                'padding-inline-end',
+                'padding-inline-start',
+                'padding-left',
+                'padding-right',
+                'padding-top'
+            ];
+            webflowPaddingProperties.map(item => {
+                styleClass.setProperty(item, value);
+            });
+        }
+    });
+}
