@@ -16,6 +16,13 @@ document.getElementById('apply-btn').onclick = async (event) => {
 
 }
 
+// shortcut to apply styles
+document.getElementById('textarea').addEventListener('keydown', async (event) => {
+  if (event.ctrlKey && event.key === 'Enter') {
+    await processController()
+  }
+})
+
 document.getElementById('class-clear').onclick = async (event) => {
   event.preventDefault()
   const classInput = document.getElementById('class-input') as HTMLInputElement

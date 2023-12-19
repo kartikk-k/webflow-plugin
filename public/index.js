@@ -18,6 +18,12 @@ document.getElementById('apply-btn').onclick = (event) => __awaiter(this, void 0
     event.preventDefault();
     yield processController();
 });
+// shortcut to apply styles
+document.getElementById('textarea').addEventListener('keydown', (event) => __awaiter(this, void 0, void 0, function* () {
+    if (event.ctrlKey && event.key === 'Enter') {
+        yield processController();
+    }
+}));
 document.getElementById('class-clear').onclick = (event) => __awaiter(this, void 0, void 0, function* () {
     event.preventDefault();
     const classInput = document.getElementById('class-input');
