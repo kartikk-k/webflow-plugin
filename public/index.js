@@ -33,14 +33,23 @@ const processController = () => __awaiter(this, void 0, void 0, function* () {
     const selectedElement = yield webflow.getSelectedElement();
     if (!selectedElement)
         return statusController('ERROR', 'No element selected');
+    if (selectedElement.customAttributes) {
+        // const atr = selectedElement.getCustomAttribute("style")
+        // selectedElement.setCustomAttribute("style", "background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.10) 100%); box-shadow: 0px 0.5px 0.5px rgba(255, 255, 255, 0.12) inset; border-radius: 4px; justify-content: center; align-items: center; gap: 2px; display: inline-flex")
+        // await selectedElement.save()
+        // webflow.notify({ type: 'Info', message: `${atr}` })
+    }
     // if selected continue
     statusController('LOADING', 'Processing styles...');
     // disable apply button
     buttonContoller.disable();
     const webflowStyleClass = yield stylesConverter();
-    if (!webflowStyleClass)
-        return buttonContoller.enable();
-    statusController('LOADING', 'Applying stylesssas...');
+    if (!webflowStyleClass) {
+        statusController('ERROR', 'No styles found');
+        buttonContoller.enable();
+        return;
+    }
+    statusController('LOADING', 'Applying styles...');
     if (selectedElement.styles) {
         selectedElement.setStyles([webflowStyleClass]);
         yield selectedElement.save();
@@ -59,6 +68,16 @@ const stylesConverter = () => __awaiter(this, void 0, void 0, function* () {
     }
     // get style name from input
     const inputClass = document.getElementById('class-input');
+    // check if class name is present
+    const classExists = yield webflow.getStyleByName('as');
+    if (classExists) {
+        // statusController('ERROR', 'Class name already exists')
+        yield webflow.notify({ type: 'Success', message: 'Class name already exists' });
+        return null;
+    }
+    else {
+        statusController('LOADING', 'Creating class...');
+    }
     const styleObject = webflow.createStyle(inputClass.value.trim() || `random-${getStyleIndex()}`);
     yield dataProcessor(styles, styleObject);
     return styleObject;
@@ -81,7 +100,11 @@ const dataProcessor = (data, styleClass) => __awaiter(this, void 0, void 0, func
                     styleClass.setProperty(property, valueParts.join(':'), { breakpoint: 'main', pseudo: 'noPseudo' });
                 }
             }
+            else
+                return;
         }
+        else
+            return;
     }));
     function isValidProperty(property) {
         const valid_properties = ADVANCED_PROPERTIES.concat(ALLOWED_PROPERTIES);
