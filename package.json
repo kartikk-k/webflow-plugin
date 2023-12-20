@@ -15,6 +15,6 @@
     "typescript": "*"
   },
   "dependencies": {
-    "webflow-cli": "1.6.4"
+    "@webflow/webflow-cli": "^1.6.4"
   }
 }
