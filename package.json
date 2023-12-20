@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "main": "index.js",
+  "homepage": "https://kartikk-k.github.io/webflow-plugin/",
   "scripts": {
     "build": "npm install && tsc -p tsconfig.json && webflow extension bundle",
     "dev": "npm install && concurrently -r \"webflow extension serve\" \"tsc -p tsconfig.json --watch --preserveWatchOutput\""
