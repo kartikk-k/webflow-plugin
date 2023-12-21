@@ -21,10 +21,13 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Configure ngrok with auth token
+      run: npx ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+
     - name: Start ngrok and expose dev server
       run: |
         npm run dev &
-        npx ngrok http 3000 -host-header="localhost:3000"  # Adjust the port if needed
+        npx ngrok http 1337
       continue-on-error: true
 
    
