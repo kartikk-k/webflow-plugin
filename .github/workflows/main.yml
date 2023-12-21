@@ -21,13 +21,10 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Build project
-      run: npm run build
-
-    - name: Deploy to GitHub Pages
+    - name: Start ngrok and expose dev server
       run: |
-        mkdir gh-pages
-        mv public/* gh-pages/
-        mv gh-pages/* .
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        npm run dev &
+        npx ngrok http 3000 -host-header="localhost:3000"  # Adjust the port if needed
+      continue-on-error: true
+
+   

@@ -13,8 +13,5 @@
     "@webflow/designer-extension-typings": "^0.1.11",
     "concurrently": "*",
     "typescript": "*"
-  },
-  "dependencies": {
-    "@webflow/webflow-cli": "^1.6.4"
   }
 }
