@@ -33,7 +33,11 @@ jobs:
       
     - name: Start ngrok tunnel
       run: |
-        ngrok http 1337
+        ngrok http 1337 > ngrok.log 2>&1 &   # Redirect output to a log file
+        sleep 5   # Wait for ngrok to start (adjust as needed)
+        cat ngrok.log   # Display ngrok log for debugging
+        # Check if ngrok is ready by looking for "online" in the log
+        grep -q "online" ngrok.log || exit 1
       continue-on-error: false
 
     - name: Start dev server
