@@ -22,8 +22,8 @@ jobs:
       run: npm install
 
     - name: Configure ngrok with auth token
-      run: npx ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-
+      run: npx ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+      
     - name: Start ngrok and expose dev server
       run: |
         npm run dev &
