@@ -26,8 +26,10 @@ jobs:
       
     - name: Start ngrok and expose dev server
       run: |
-        npx ngrok http 1337 > /dev/null 2>&1 &   # Start ngrok in the background
-        npm run dev                            # Start your application
-      continue-on-error: true
+        npx ngrok http 1337
+      continue-on-error: false
+
+    - name: Start dev server
+      run: npm run dev 
 
    
