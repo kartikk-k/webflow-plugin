@@ -40,6 +40,14 @@ const processController = () => __awaiter(this, void 0, void 0, function* () {
     const selectedElement = yield webflow.getSelectedElement();
     if (!selectedElement)
         return statusController('ERROR', 'No element selected');
+    // const debuggerElement = document.getElementById('debugger')
+    // debuggerElement.innerHTML = 'getting'
+    // let a = await webflow.getAllElements()
+    // // debuggerElement.innerHTML = 
+    // let b = await webflow.getAllStyles()
+    // debuggerElement.innerHTML = JSON.stringify(a[0]) + ' ' + JSON.stringify(b[0])
+    // // await webflow.getAllStyles
+    // return
     // if (selectedElement.customAttributes) {
     // const atr = selectedElement.getCustomAttribute("style")
     // selectedElement.setCustomAttribute("style", "background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.10) 100%); box-shadow: 0px 0.5px 0.5px rgba(255, 255, 255, 0.12) inset; border-radius: 4px; justify-content: center; align-items: center; gap: 2px; display: inline-flex")
@@ -104,15 +112,16 @@ const dataProcessor = (data, styleClass) => __awaiter(this, void 0, void 0, func
     lines.forEach((line) => __awaiter(this, void 0, void 0, function* () {
         // Split each line into property and value
         const [property, ...valueParts] = line.split(':').map(part => part.trim());
+        let value = removeVarFromValue(valueParts.join(':'));
         // Check if both property and value are present
         if (property && valueParts.length > 0) {
             if (isValidProperty(property)) {
                 const isAdvancedProperty = ADVANCED_PROPERTIES.find(item => item === property);
                 if (isAdvancedProperty) {
-                    advancedDataProcessor(styleClass, property, valueParts.join(':'));
+                    advancedDataProcessor(styleClass, property, value);
                 }
                 else {
-                    styleClass.setProperty(property, valueParts.join(':'), { breakpoint: 'main', pseudo: 'noPseudo' });
+                    styleClass.setProperty(property, value, { breakpoint: 'main', pseudo: 'noPseudo' });
                 }
             }
             else
@@ -128,6 +137,20 @@ const dataProcessor = (data, styleClass) => __awaiter(this, void 0, void 0, func
             return true;
         else
             return false;
+    }
+    function removeVarFromValue(value) {
+        // example  var(--stroke, #363F54);
+        if (value.includes('var')) {
+            let parts = value.split('var(--');
+            parts.shift();
+            parts = parts[0].split(' ');
+            parts.shift();
+            // remove bracket from last item
+            parts[parts.length - 1] = parts[parts.length - 1].split(')')[0];
+            return parts.join(' ');
+        }
+        else
+            return value;
     }
 });
 const statusController = (status, text) => {
