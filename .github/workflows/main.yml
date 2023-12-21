@@ -13,6 +13,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Install ngrok
+      run: |
+        curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+        echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+        sudo apt-get update
+        sudo apt-get install ngrok
+
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
@@ -22,11 +29,11 @@ jobs:
       run: npm install
 
     - name: Configure ngrok with auth token
-      run: npx ngrok authtoken 2Zpi1Pu3V5vNJqdQEmDZRz4As58_i1wUTV1cqqUoMRUMtZ6z
+      run: ngrok authtoken 2Zpi1Pu3V5vNJqdQEmDZRz4As58_i1wUTV1cqqUoMRUMtZ6z
       
-    - name: Start ngrok and expose dev server
+    - name: Start ngrok tunnel
       run: |
-        npx ngrok http 1337
+        ngrok http 1337
       continue-on-error: false
 
     - name: Start dev server
