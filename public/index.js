@@ -40,25 +40,11 @@ const processController = () => __awaiter(this, void 0, void 0, function* () {
     const selectedElement = yield webflow.getSelectedElement();
     if (!selectedElement)
         return statusController('ERROR', 'No element selected');
-    // const debuggerElement = document.getElementById('debugger')
-    // debuggerElement.innerHTML = 'getting'
-    // let a = await webflow.getAllElements()
-    // // debuggerElement.innerHTML = 
-    // let b = await webflow.getAllStyles()
-    // debuggerElement.innerHTML = JSON.stringify(a[0]) + ' ' + JSON.stringify(b[0])
-    // // await webflow.getAllStyles
-    // return
-    // if (selectedElement.customAttributes) {
-    // const atr = selectedElement.getCustomAttribute("style")
-    // selectedElement.setCustomAttribute("style", "background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.10) 100%); box-shadow: 0px 0.5px 0.5px rgba(255, 255, 255, 0.12) inset; border-radius: 4px; justify-content: center; align-items: center; gap: 2px; display: inline-flex")
-    // await selectedElement.save()
-    // webflow.notify({ type: 'Info', message: `${atr}` })
-    // }
     // if selected continue
     statusController('LOADING', 'Processing styles...');
     // disable apply button
     buttonContoller.disable();
-    const webflowStyleClass = yield stylesConverter();
+    const webflowStyleClass = yield stylesConverter(selectedElement);
     if (STYLE_ATTRIBUTE) {
         if (selectedElement.customAttributes) {
             selectedElement.setCustomAttribute("style", STYLE_ATTRIBUTE);
@@ -80,7 +66,7 @@ const processController = () => __awaiter(this, void 0, void 0, function* () {
     buttonContoller.enable();
 });
 // main function
-const stylesConverter = () => __awaiter(this, void 0, void 0, function* () {
+const stylesConverter = (selectedElement) => __awaiter(this, void 0, void 0, function* () {
     const inputStyles = document.getElementById('textarea');
     const styles = inputStyles.value;
     if (!styles.trim()) {
@@ -101,12 +87,16 @@ const stylesConverter = () => __awaiter(this, void 0, void 0, function* () {
     else {
         statusController('LOADING', 'Creating class...');
     }
-    const styleObject = webflow.createStyle(inputClass || `random-${getStyleIndex()}`);
-    yield dataProcessor(styles, styleObject);
+    const styleObject = webflow.createStyle(inputClass || `custom-${getStyleIndex()}`);
+    const breakpoint = yield webflow.getMediaQuery();
+    webflow.notify({ type: 'Info', message: breakpoint });
+    /* NOTE: user-input styles will over-write previous classes */
+    yield applyPreviousStyles(selectedElement, styleObject);
+    yield dataProcessor(styles, styleObject, breakpoint);
     return styleObject;
 });
 // sub functions - (data)
-const dataProcessor = (data, styleClass) => __awaiter(this, void 0, void 0, function* () {
+const dataProcessor = (data, styleClass, breakpoint) => __awaiter(this, void 0, void 0, function* () {
     const lines = data.split(';');
     // Process each line
     lines.forEach((line) => __awaiter(this, void 0, void 0, function* () {
@@ -118,10 +108,10 @@ const dataProcessor = (data, styleClass) => __awaiter(this, void 0, void 0, func
             if (isValidProperty(property)) {
                 const isAdvancedProperty = ADVANCED_PROPERTIES.find(item => item === property);
                 if (isAdvancedProperty) {
-                    advancedDataProcessor(styleClass, property, value);
+                    advancedDataProcessor(styleClass, property, value, breakpoint);
                 }
                 else {
-                    styleClass.setProperty(property, value, { breakpoint: 'main', pseudo: 'noPseudo' });
+                    styleClass.setProperty(property, value, { breakpoint: breakpoint, pseudo: 'noPseudo' });
                 }
             }
             else
@@ -252,8 +242,52 @@ function getDataFromLocalStorage_I(key) {
             return null;
     });
 }
+// create style class from previous styles
+function applyPreviousStyles(selectedElement, styleClass) {
+    var _a, _b, _c, _d, _e, _f, _g;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!selectedElement.styles)
+            return null;
+        // getting current styles for selected element
+        let previousStyles = yield selectedElement.getStyles();
+        // seperating data according to breakpoint
+        let mainBreakStyles = JSON.stringify((_a = previousStyles[0]) === null || _a === void 0 ? void 0 : _a.getProperties({ breakpoint: 'main' }));
+        // webflow.notify({ type: 'Info', message: mainBreakStyles })
+        applyStyle(mainBreakStyles, 'main');
+        let largeBreakStyles = JSON.stringify((_b = previousStyles[0]) === null || _b === void 0 ? void 0 : _b.getProperties({ breakpoint: 'large' }));
+        applyStyle(largeBreakStyles, 'large');
+        let mediumBreakStyles = JSON.stringify((_c = previousStyles[0]) === null || _c === void 0 ? void 0 : _c.getProperties({ breakpoint: 'medium' }));
+        applyStyle(mediumBreakStyles, 'medium');
+        let smallBreakStyles = JSON.stringify((_d = previousStyles[0]) === null || _d === void 0 ? void 0 : _d.getProperties({ breakpoint: 'small' }));
+        applyStyle(smallBreakStyles, 'small');
+        let tinyBreakStyles = JSON.stringify((_e = previousStyles[0]) === null || _e === void 0 ? void 0 : _e.getProperties({ breakpoint: 'tiny' }));
+        applyStyle(tinyBreakStyles, 'tiny');
+        let xlBreakStyles = JSON.stringify((_f = previousStyles[0]) === null || _f === void 0 ? void 0 : _f.getProperties({ breakpoint: 'xl' }));
+        applyStyle(xlBreakStyles, 'xl');
+        let xxlBreakStyles = JSON.stringify((_g = previousStyles[0]) === null || _g === void 0 ? void 0 : _g.getProperties({ breakpoint: 'xxl' }));
+        applyStyle(xxlBreakStyles, 'xxl');
+        // adds properties to style class for each breakpoint
+        function applyStyle(styles, breakpoint) {
+            if (!styles || styles === '{}')
+                return;
+            // example res = {"color":"white","text-align":"center"}
+            let stylesArray = styles.split("{")[1].split("}")[0];
+            let parts = stylesArray.split(',');
+            parts.forEach(item => {
+                try {
+                    let property = item.split(':')[0].replace(/"/g, "");
+                    let value = item.split(':')[1].replace(/"/g, "");
+                    styleClass.setProperty(property, value, { breakpoint: breakpoint, pseudo: 'noPseudo' });
+                }
+                catch (err) {
+                    webflow.notify({ type: 'Error', message: `Error: ${item}` });
+                }
+            });
+        }
+    });
+}
 // advanced data processor
-function advancedDataProcessor(styleClass, property, value) {
+function advancedDataProcessor(styleClass, property, value, breakpoint) {
     return __awaiter(this, void 0, void 0, function* () {
         // height and width advanced settings
         if (property === 'height' || property === 'width') {
@@ -264,7 +298,7 @@ function advancedDataProcessor(styleClass, property, value) {
                 if (typeof (localHeightValue) === "boolean")
                     heightAllowed = localHeightValue;
                 if (heightAllowed)
-                    styleClass.setProperty(property, value);
+                    styleClass.setProperty(property, value, { breakpoint: breakpoint });
             }
             /* -- for width -- */
             else {
@@ -273,13 +307,13 @@ function advancedDataProcessor(styleClass, property, value) {
                 if (typeof (localWidthValue) === "boolean")
                     widthAllowed = localWidthValue;
                 if (widthAllowed)
-                    styleClass.setProperty(property, value);
+                    styleClass.setProperty(property, value, { breakpoint: breakpoint });
             }
         }
         /* -- for opacity -- */
         else if (property === 'opacity') {
             if (value !== 'var(--line, 1)') {
-                styleClass.setProperty(property, value);
+                styleClass.setProperty(property, value, { breakpoint: breakpoint });
             }
         }
         /* -- for border radius --*/
@@ -318,7 +352,7 @@ function advancedDataProcessor(styleClass, property, value) {
             paddingValues = paddingValues.filter(item => item !== '');
             if (paddingValues.length === 1) {
                 webflowPaddingProperties.map(item => {
-                    styleClass.setProperty(item, value);
+                    styleClass.setProperty(item, value, { breakpoint: breakpoint });
                 });
             }
             else if (paddingValues.length === 2) {
@@ -343,7 +377,7 @@ function advancedDataProcessor(styleClass, property, value) {
                 'grid-column-gap'
             ];
             webflowGapProperties.map(item => {
-                styleClass.setProperty(item, value);
+                styleClass.setProperty(item, value, { breakpoint: breakpoint });
             });
         }
         /* -- for background -- */
@@ -355,7 +389,7 @@ function advancedDataProcessor(styleClass, property, value) {
                 webflow.notify({ type: 'Error', message: 'Background image not supported' });
             }
             else {
-                styleClass.setProperty('background-color', value);
+                styleClass.setProperty('background-color', value, { breakpoint: breakpoint });
             }
         }
         /* -- for border -- */
@@ -383,44 +417,44 @@ function advancedDataProcessor(styleClass, property, value) {
                 if (property === 'border') {
                     // color
                     webflowBorderColorProperties.map(item => {
-                        styleClass.setProperty(item, borderValues[2]);
+                        styleClass.setProperty(item, borderValues[2], { breakpoint: breakpoint });
                     });
                     // width
                     webflowBorderWidthProperties.map(item => {
-                        styleClass.setProperty(item, borderValues[0]);
+                        styleClass.setProperty(item, borderValues[0], { breakpoint: breakpoint });
                     });
                     // style
                     if (borderValues[1] === 'solid' || borderValues[1] === 'dashed')
                         webflowBorderStyleProperties.map(item => {
-                            styleClass.setProperty(item, borderValues[1]);
+                            styleClass.setProperty(item, borderValues[1], { breakpoint: breakpoint });
                         });
                 }
                 else if (property === 'border-top') {
                     styleClass.setProperty('border-top-color', borderValues[2]);
                     styleClass.setProperty('border-top-width', borderValues[0]);
                     if (borderValues[1] === 'solid' || borderValues[1] === 'dashed') {
-                        styleClass.setProperty('border-top-style', borderValues[1]);
+                        styleClass.setProperty('border-top-style', borderValues[1], { breakpoint: breakpoint });
                     }
                 }
                 else if (property === 'border-bottom') {
                     styleClass.setProperty('border-bottom-color', borderValues[2]);
                     styleClass.setProperty('border-bottom-width', borderValues[0]);
                     if (borderValues[1] === 'solid' || borderValues[1] === 'dashed') {
-                        styleClass.setProperty('border-bottom-style', borderValues[1]);
+                        styleClass.setProperty('border-bottom-style', borderValues[1], { breakpoint: breakpoint });
                     }
                 }
                 else if (property === 'border-left') {
                     styleClass.setProperty('border-left-color', borderValues[2]);
                     styleClass.setProperty('border-left-width', borderValues[0]);
                     if (borderValues[1] === 'solid' || borderValues[1] === 'dashed') {
-                        styleClass.setProperty('border-left-style', borderValues[1]);
+                        styleClass.setProperty('border-left-style', borderValues[1], { breakpoint: breakpoint });
                     }
                 }
                 else if (property === 'border-right') {
                     styleClass.setProperty('border-right-color', borderValues[2]);
                     styleClass.setProperty('border-right-width', borderValues[0]);
                     if (borderValues[1] === 'solid' || borderValues[1] === 'dashed') {
-                        styleClass.setProperty('border-right-style', borderValues[1]);
+                        styleClass.setProperty('border-right-style', borderValues[1], { breakpoint: breakpoint });
                     }
                 }
             }

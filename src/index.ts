@@ -44,35 +44,13 @@ const processController = async () => {
   if (!selectedElement) return statusController('ERROR', 'No element selected')
 
 
-  // const debuggerElement = document.getElementById('debugger')
-  // debuggerElement.innerHTML = 'getting'
-
-  // let a = await webflow.getAllElements()
-  // // debuggerElement.innerHTML = 
-  // let b = await webflow.getAllStyles()
-  // debuggerElement.innerHTML = JSON.stringify(a[0]) + ' ' + JSON.stringify(b[0])
-
-  // // await webflow.getAllStyles
-
-
-  // return
-
-  // if (selectedElement.customAttributes) {
-  // const atr = selectedElement.getCustomAttribute("style")
-  // selectedElement.setCustomAttribute("style", "background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.10) 100%); box-shadow: 0px 0.5px 0.5px rgba(255, 255, 255, 0.12) inset; border-radius: 4px; justify-content: center; align-items: center; gap: 2px; display: inline-flex")
-
-  // await selectedElement.save()
-  // webflow.notify({ type: 'Info', message: `${atr}` })
-  // }
-
-
   // if selected continue
   statusController('LOADING', 'Processing styles...')
 
   // disable apply button
   buttonContoller.disable()
 
-  const webflowStyleClass = await stylesConverter()
+  const webflowStyleClass = await stylesConverter(selectedElement)
 
   if (STYLE_ATTRIBUTE) {
     if (selectedElement.customAttributes) {
@@ -101,7 +79,7 @@ const processController = async () => {
 }
 
 // main function
-const stylesConverter = async () => {
+const stylesConverter = async (selectedElement: AnyElement) => {
   const inputStyles = document.getElementById('textarea') as HTMLTextAreaElement
 
   const styles = inputStyles.value
@@ -126,14 +104,20 @@ const stylesConverter = async () => {
     statusController('LOADING', 'Creating class...')
   }
 
-  const styleObject: Style = webflow.createStyle(inputClass || `random-${getStyleIndex()}`)
-  await dataProcessor(styles, styleObject)
+  const styleObject: Style = webflow.createStyle(inputClass || `custom-${getStyleIndex()}`)
+
+  const breakpoint = await webflow.getMediaQuery()
+  webflow.notify({ type: 'Info', message: breakpoint })
+
+  /* NOTE: user-input styles will over-write previous classes */
+  await applyPreviousStyles(selectedElement, styleObject)
+  await dataProcessor(styles, styleObject, breakpoint)
 
   return styleObject
 }
 
 // sub functions - (data)
-const dataProcessor = async (data: string, styleClass: Style) => {
+const dataProcessor = async (data: string, styleClass: Style, breakpoint: BreakpointAndPseudo['breakpoint']) => {
   const lines = data.split(';');
 
   // Process each line
@@ -152,10 +136,10 @@ const dataProcessor = async (data: string, styleClass: Style) => {
         const isAdvancedProperty = ADVANCED_PROPERTIES.find(item => item === property)
         if (isAdvancedProperty) {
 
-          advancedDataProcessor(styleClass, property as StyleProperty, value)
+          advancedDataProcessor(styleClass, property as StyleProperty, value, breakpoint)
 
         } else {
-          styleClass.setProperty(property as StyleProperty, value, { breakpoint: 'main', pseudo: 'noPseudo' });
+          styleClass.setProperty(property as StyleProperty, value, { breakpoint: breakpoint, pseudo: 'noPseudo' });
         }
 
       } else return
@@ -296,10 +280,64 @@ async function getDataFromLocalStorage_I(key: string) {
 }
 
 
+// create style class from previous styles
+async function applyPreviousStyles(selectedElement: AnyElement, styleClass: Style) {
 
+  if (!selectedElement.styles) return null
+
+  // getting current styles for selected element
+  let previousStyles = await selectedElement.getStyles()
+
+  // seperating data according to breakpoint
+  let mainBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'main' }))
+  // webflow.notify({ type: 'Info', message: mainBreakStyles })
+  applyStyle(mainBreakStyles, 'main')
+
+  let largeBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'large' }))
+  applyStyle(largeBreakStyles, 'large')
+
+  let mediumBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'medium' }))
+  applyStyle(mediumBreakStyles, 'medium')
+
+  let smallBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'small' }))
+  applyStyle(smallBreakStyles, 'small')
+
+  let tinyBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'tiny' }))
+  applyStyle(tinyBreakStyles, 'tiny')
+
+  let xlBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'xl' }))
+  applyStyle(xlBreakStyles, 'xl')
+
+  let xxlBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'xxl' }))
+  applyStyle(xxlBreakStyles, 'xxl')
+
+
+  // adds properties to style class for each breakpoint
+  function applyStyle(styles: string, breakpoint: BreakpointAndPseudo['breakpoint']) {
+    if (!styles || styles === '{}') return
+
+    // example res = {"color":"white","text-align":"center"}
+
+    let stylesArray = styles.split("{")[1].split("}")[0]
+    let parts = stylesArray.split(',')
+
+    parts.forEach(item => {
+      try {
+        let property = item.split(':')[0].replace(/"/g, "")
+        let value = item.split(':')[1].replace(/"/g, "")
+
+        styleClass.setProperty(property as StyleProperty, value, { breakpoint: breakpoint, pseudo: 'noPseudo' })
+
+      } catch (err) {
+        webflow.notify({ type: 'Error', message: `Error: ${item}` })
+      }
+    })
+  }
+
+}
 
 // advanced data processor
-async function advancedDataProcessor(styleClass: Style, property: StyleProperty | string, value: string) {
+async function advancedDataProcessor(styleClass: Style, property: StyleProperty | string, value: string, breakpoint: BreakpointAndPseudo['breakpoint']) {
 
   // height and width advanced settings
   if (property === 'height' || property === 'width') {
@@ -308,14 +346,14 @@ async function advancedDataProcessor(styleClass: Style, property: StyleProperty 
       let heightAllowed: boolean;
       const localHeightValue = await getDataFromLocalStorage_I('height');
       if (typeof (localHeightValue) === "boolean") heightAllowed = localHeightValue;
-      if (heightAllowed) styleClass.setProperty(property, value);
+      if (heightAllowed) styleClass.setProperty(property, value, { breakpoint: breakpoint });
     }
     /* -- for width -- */
     else {
       let widthAllowed: boolean;
       const localWidthValue = await getDataFromLocalStorage_I('width');
       if (typeof (localWidthValue) === "boolean") widthAllowed = localWidthValue;
-      if (widthAllowed) styleClass.setProperty(property, value);
+      if (widthAllowed) styleClass.setProperty(property, value, { breakpoint: breakpoint });
     }
 
 
@@ -323,7 +361,7 @@ async function advancedDataProcessor(styleClass: Style, property: StyleProperty 
   /* -- for opacity -- */
   else if (property === 'opacity') {
     if (value !== 'var(--line, 1)') {
-      styleClass.setProperty(property, value);
+      styleClass.setProperty(property, value, { breakpoint: breakpoint });
     }
   }
 
@@ -367,7 +405,7 @@ async function advancedDataProcessor(styleClass: Style, property: StyleProperty 
 
     if (paddingValues.length === 1) {
       webflowPaddingProperties.map(item => {
-        styleClass.setProperty(item, value);
+        styleClass.setProperty(item, value, { breakpoint: breakpoint });
       })
     }
     else if (paddingValues.length === 2) {
@@ -393,7 +431,7 @@ async function advancedDataProcessor(styleClass: Style, property: StyleProperty 
     ];
 
     webflowGapProperties.map(item => {
-      styleClass.setProperty(item, value);
+      styleClass.setProperty(item, value, { breakpoint: breakpoint });
     })
   }
 
@@ -404,7 +442,7 @@ async function advancedDataProcessor(styleClass: Style, property: StyleProperty 
     } else if (value.includes('url')) {
       webflow.notify({ type: 'Error', message: 'Background image not supported' })
     } else {
-      styleClass.setProperty('background-color', value);
+      styleClass.setProperty('background-color', value, { breakpoint: breakpoint });
     }
   }
 
@@ -437,40 +475,40 @@ async function advancedDataProcessor(styleClass: Style, property: StyleProperty 
       if (property === 'border') {
         // color
         webflowBorderColorProperties.map(item => {
-          styleClass.setProperty(item, borderValues[2]);
+          styleClass.setProperty(item, borderValues[2], { breakpoint: breakpoint });
         })
         // width
         webflowBorderWidthProperties.map(item => {
-          styleClass.setProperty(item, borderValues[0]);
+          styleClass.setProperty(item, borderValues[0], { breakpoint: breakpoint });
         })
         // style
         if (borderValues[1] === 'solid' || borderValues[1] === 'dashed')
           webflowBorderStyleProperties.map(item => {
-            styleClass.setProperty(item, borderValues[1]);
+            styleClass.setProperty(item, borderValues[1], { breakpoint: breakpoint });
           })
       } else if (property === 'border-top') {
         styleClass.setProperty('border-top-color', borderValues[2]);
         styleClass.setProperty('border-top-width', borderValues[0]);
         if (borderValues[1] === 'solid' || borderValues[1] === 'dashed') {
-          styleClass.setProperty('border-top-style', borderValues[1]);
+          styleClass.setProperty('border-top-style', borderValues[1], { breakpoint: breakpoint });
         }
       } else if (property === 'border-bottom') {
         styleClass.setProperty('border-bottom-color', borderValues[2]);
         styleClass.setProperty('border-bottom-width', borderValues[0]);
         if (borderValues[1] === 'solid' || borderValues[1] === 'dashed') {
-          styleClass.setProperty('border-bottom-style', borderValues[1]);
+          styleClass.setProperty('border-bottom-style', borderValues[1], { breakpoint: breakpoint });
         }
       } else if (property === 'border-left') {
         styleClass.setProperty('border-left-color', borderValues[2]);
         styleClass.setProperty('border-left-width', borderValues[0]);
         if (borderValues[1] === 'solid' || borderValues[1] === 'dashed') {
-          styleClass.setProperty('border-left-style', borderValues[1]);
+          styleClass.setProperty('border-left-style', borderValues[1], { breakpoint: breakpoint });
         }
       } else if (property === 'border-right') {
         styleClass.setProperty('border-right-color', borderValues[2]);
         styleClass.setProperty('border-right-width', borderValues[0]);
         if (borderValues[1] === 'solid' || borderValues[1] === 'dashed') {
-          styleClass.setProperty('border-right-style', borderValues[1]);
+          styleClass.setProperty('border-right-style', borderValues[1], { breakpoint: breakpoint });
         }
       }
     }
