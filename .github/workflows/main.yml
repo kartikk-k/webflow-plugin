@@ -27,21 +27,7 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-
-    - name: Configure ngrok with auth token
-      run: ngrok authtoken 2Zpi1Pu3V5vNJqdQEmDZRz4As58_i1wUTV1cqqUoMRUMtZ6z
-      
-    - name: Start ngrok tunnel
-      run: |
-        ngrok http 1337 | tee ngrok.log &
-        # Wait for ngrok to start (adjust as needed)
-        for i in {1..30}; do
-          sleep 5
-          grep -q "online" ngrok.log && break
-          echo "Waiting for ngrok to be online..."
-        done
-        grep -q "online" ngrok.log || exit 1
-
+    
     - name: Start dev server
       run: npm run dev 
 

@@ -57,8 +57,12 @@ const processController = () => __awaiter(this, void 0, void 0, function* () {
         return;
     }
     statusController('LOADING', 'Applying styles...');
+    let pClass;
     if (selectedElement.styles) {
-        selectedElement.setStyles([webflowStyleClass]);
+        pClass = yield selectedElement.getStyles();
+    }
+    if (selectedElement.styles) {
+        selectedElement.setStyles([webflowStyleClass, ...pClass]);
         yield selectedElement.save();
     }
     webflowStyleClass.destroy();
@@ -89,9 +93,8 @@ const stylesConverter = (selectedElement) => __awaiter(this, void 0, void 0, fun
     }
     const styleObject = webflow.createStyle(inputClass || `custom-${getStyleIndex()}`);
     const breakpoint = yield webflow.getMediaQuery();
-    webflow.notify({ type: 'Info', message: breakpoint });
     /* NOTE: user-input styles will over-write previous classes */
-    yield applyPreviousStyles(selectedElement, styleObject);
+    // await applyPreviousStyles(selectedElement, styleObject)
     yield dataProcessor(styles, styleObject, breakpoint);
     return styleObject;
 });
@@ -244,28 +247,30 @@ function getDataFromLocalStorage_I(key) {
 }
 // create style class from previous styles
 function applyPreviousStyles(selectedElement, styleClass) {
-    var _a, _b, _c, _d, _e, _f, _g;
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         if (!selectedElement.styles)
             return null;
         // getting current styles for selected element
         let previousStyles = yield selectedElement.getStyles();
+        selectedElement.setStyles([...previousStyles]);
+        // webflow.notify({ type: 'Info', message: "✨" + JSON.stringify(previousStyles[0].) })
         // seperating data according to breakpoint
         let mainBreakStyles = JSON.stringify((_a = previousStyles[0]) === null || _a === void 0 ? void 0 : _a.getProperties({ breakpoint: 'main' }));
-        // webflow.notify({ type: 'Info', message: mainBreakStyles })
+        // webflow.notify({ type: 'Info', message: "👻" + mainBreakStyles })
         applyStyle(mainBreakStyles, 'main');
-        let largeBreakStyles = JSON.stringify((_b = previousStyles[0]) === null || _b === void 0 ? void 0 : _b.getProperties({ breakpoint: 'large' }));
-        applyStyle(largeBreakStyles, 'large');
-        let mediumBreakStyles = JSON.stringify((_c = previousStyles[0]) === null || _c === void 0 ? void 0 : _c.getProperties({ breakpoint: 'medium' }));
-        applyStyle(mediumBreakStyles, 'medium');
-        let smallBreakStyles = JSON.stringify((_d = previousStyles[0]) === null || _d === void 0 ? void 0 : _d.getProperties({ breakpoint: 'small' }));
-        applyStyle(smallBreakStyles, 'small');
-        let tinyBreakStyles = JSON.stringify((_e = previousStyles[0]) === null || _e === void 0 ? void 0 : _e.getProperties({ breakpoint: 'tiny' }));
-        applyStyle(tinyBreakStyles, 'tiny');
-        let xlBreakStyles = JSON.stringify((_f = previousStyles[0]) === null || _f === void 0 ? void 0 : _f.getProperties({ breakpoint: 'xl' }));
-        applyStyle(xlBreakStyles, 'xl');
-        let xxlBreakStyles = JSON.stringify((_g = previousStyles[0]) === null || _g === void 0 ? void 0 : _g.getProperties({ breakpoint: 'xxl' }));
-        applyStyle(xxlBreakStyles, 'xxl');
+        // let largeBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'large' }))
+        // applyStyle(largeBreakStyles, 'large')
+        // let mediumBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'medium' }))
+        // applyStyle(mediumBreakStyles, 'medium')
+        // let smallBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'small' }))
+        // applyStyle(smallBreakStyles, 'small')
+        // let tinyBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'tiny' }))
+        // applyStyle(tinyBreakStyles, 'tiny')
+        // let xlBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'xl' }))
+        // applyStyle(xlBreakStyles, 'xl')
+        // let xxlBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'xxl' }))
+        // applyStyle(xxlBreakStyles, 'xxl')
         // adds properties to style class for each breakpoint
         function applyStyle(styles, breakpoint) {
             if (!styles || styles === '{}')
@@ -273,14 +278,18 @@ function applyPreviousStyles(selectedElement, styleClass) {
             // example res = {"color":"white","text-align":"center"}
             let stylesArray = styles.split("{")[1].split("}")[0];
             let parts = stylesArray.split(',');
+            if (breakpoint === "main") {
+                webflow.notify({ type: 'Info', message: "💀" + parts.join(' / ') });
+            }
             parts.forEach(item => {
                 try {
                     let property = item.split(':')[0].replace(/"/g, "");
                     let value = item.split(':')[1].replace(/"/g, "");
-                    styleClass.setProperty(property, value, { breakpoint: breakpoint, pseudo: 'noPseudo' });
+                    // @ts-ignore
+                    styleClass.setProperty(property, value, { breakpoint: breakpoint });
                 }
                 catch (err) {
-                    webflow.notify({ type: 'Error', message: `Error: ${item}` });
+                    // webflow.notify({ type: 'Error', message: `Error: ${item}` })
                 }
             });
         }
@@ -341,19 +350,20 @@ function advancedDataProcessor(styleClass, property, value, breakpoint) {
         }
         /* -- for padding -- */
         else if (property === 'padding') {
-            const webflowPaddingProperties = [
-                'padding-bottom',
-                'padding-left',
-                'padding-right',
-                'padding-top'
-            ];
+            // const webflowPaddingProperties: StyleProperty[] = [
+            //   'padding-bottom',
+            //   'padding-left',
+            //   'padding-right',
+            //   'padding-top'
+            // ];
             // check if value has 2 values or 4 values
             let paddingValues = value.split(' ');
             paddingValues = paddingValues.filter(item => item !== '');
             if (paddingValues.length === 1) {
-                webflowPaddingProperties.map(item => {
-                    styleClass.setProperty(item, value, { breakpoint: breakpoint });
-                });
+                styleClass.setProperty('padding-top', value);
+                styleClass.setProperty('padding-bottom', value);
+                styleClass.setProperty('padding-left', value);
+                styleClass.setProperty('padding-right', value);
             }
             else if (paddingValues.length === 2) {
                 styleClass.setProperty('padding-top', paddingValues[0]);
