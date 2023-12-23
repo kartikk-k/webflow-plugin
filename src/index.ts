@@ -112,8 +112,6 @@ const stylesConverter = async (selectedElement: AnyElement) => {
 
   const breakpoint = await webflow.getMediaQuery()
 
-  /* NOTE: user-input styles will over-write previous classes */
-  // await applyPreviousStyles(selectedElement, styleObject)
   await dataProcessor(styles, styleObject, breakpoint)
 
   return styleObject
@@ -283,69 +281,6 @@ async function getDataFromLocalStorage_I(key: string) {
 }
 
 
-// create style class from previous styles
-async function applyPreviousStyles(selectedElement: AnyElement, styleClass: Style) {
-
-  if (!selectedElement.styles) return null
-
-  // getting current styles for selected element
-  let previousStyles = await selectedElement.getStyles()
-  selectedElement.setStyles([...previousStyles])
-  // webflow.notify({ type: 'Info', message: "✨" + JSON.stringify(previousStyles[0].) })
-
-
-  // seperating data according to breakpoint
-  let mainBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'main' }))
-  // webflow.notify({ type: 'Info', message: "👻" + mainBreakStyles })
-  applyStyle(mainBreakStyles, 'main')
-
-  // let largeBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'large' }))
-  // applyStyle(largeBreakStyles, 'large')
-
-  // let mediumBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'medium' }))
-  // applyStyle(mediumBreakStyles, 'medium')
-
-  // let smallBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'small' }))
-  // applyStyle(smallBreakStyles, 'small')
-
-  // let tinyBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'tiny' }))
-  // applyStyle(tinyBreakStyles, 'tiny')
-
-  // let xlBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'xl' }))
-  // applyStyle(xlBreakStyles, 'xl')
-
-  // let xxlBreakStyles = JSON.stringify(previousStyles[0]?.getProperties({ breakpoint: 'xxl' }))
-  // applyStyle(xxlBreakStyles, 'xxl')
-
-
-  // adds properties to style class for each breakpoint
-  function applyStyle(styles: string, breakpoint: BreakpointAndPseudo['breakpoint']) {
-    if (!styles || styles === '{}') return
-
-    // example res = {"color":"white","text-align":"center"}
-
-    let stylesArray = styles.split("{")[1].split("}")[0]
-    let parts = stylesArray.split(',')
-    if (breakpoint === "main") {
-      webflow.notify({ type: 'Info', message: "💀" + parts.join(' / ') })
-    }
-
-    parts.forEach(item => {
-      try {
-        let property = item.split(':')[0].replace(/"/g, "")
-        let value = item.split(':')[1].replace(/"/g, "")
-
-        // @ts-ignore
-        styleClass.setProperty(property, value, { breakpoint: breakpoint })
-
-      } catch (err) {
-        // webflow.notify({ type: 'Error', message: `Error: ${item}` })
-      }
-    })
-  }
-
-}
-
 // advanced data processor
 async function advancedDataProcessor(styleClass: Style, property: StyleProperty | string, value: string, breakpoint: BreakpointAndPseudo['breakpoint']) {
 
@@ -402,12 +337,6 @@ async function advancedDataProcessor(styleClass: Style, property: StyleProperty 
 
   /* -- for padding -- */
   else if (property === 'padding') {
-    // const webflowPaddingProperties: StyleProperty[] = [
-    //   'padding-bottom',
-    //   'padding-left',
-    //   'padding-right',
-    //   'padding-top'
-    // ];
 
     // check if value has 2 values or 4 values
     let paddingValues = value.split(' ');
@@ -429,6 +358,32 @@ async function advancedDataProcessor(styleClass: Style, property: StyleProperty 
       styleClass.setProperty('padding-right', paddingValues[1]);
       styleClass.setProperty('padding-bottom', paddingValues[2]);
       styleClass.setProperty('padding-left', paddingValues[3]);
+    }
+  }
+
+  /* -- for margin -- */
+  else if (property === 'margin') {
+
+    // check if value has 2 values or 4 values
+    let marginValues = value.split(' ');
+    marginValues = marginValues.filter(item => item !== '');
+
+    if (marginValues.length === 1) {
+      styleClass.setProperty('margin-top', value);
+      styleClass.setProperty('margin-bottom', value);
+      styleClass.setProperty('margin-left', value);
+      styleClass.setProperty('margin-right', value);
+    }
+    else if (marginValues.length === 2) {
+      styleClass.setProperty('margin-top', marginValues[0]);
+      styleClass.setProperty('margin-bottom', marginValues[0]);
+      styleClass.setProperty('margin-left', marginValues[1]);
+      styleClass.setProperty('margin-right', marginValues[1]);
+    } else if (marginValues.length === 4) {
+      styleClass.setProperty('margin-top', marginValues[0]);
+      styleClass.setProperty('margin-right', marginValues[1]);
+      styleClass.setProperty('margin-bottom', marginValues[2]);
+      styleClass.setProperty('margin-left', marginValues[3]);
     }
   }
 
